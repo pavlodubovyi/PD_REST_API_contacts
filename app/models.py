@@ -1,6 +1,9 @@
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import Integer, String, Date
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Integer, String, Date, Boolean, ForeignKey
 from app.database import Base
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class Contact(Base):
@@ -13,3 +16,22 @@ class Contact(Base):
     phone_number: Mapped[str] = mapped_column(String, nullable=True)
     birthday: Mapped[Date] = mapped_column(Date, nullable=True)
     additional_info: Mapped[str] = mapped_column(String, nullable=True)
+    owner_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    owner = relationship("User", back_populates="contacts")
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    contacts = relationship("Contact", back_populates="owner")
+
+    def verify_password(self, password: str) -> bool:
+        return pwd_context.verify(password, self.hashed_password)
+
+    @classmethod
+    def hash_password(cls, password: str) -> str:
+        return pwd_context.hash(password)

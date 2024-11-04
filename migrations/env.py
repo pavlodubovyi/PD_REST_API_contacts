@@ -1,12 +1,12 @@
 import os
 import asyncio
 from logging.config import fileConfig
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine
 from alembic import context
 from app.database import Base
 
 config = context.config
-if config.config_file_name is not None:
+if config.config_file_name:
     fileConfig(config.config_file_name)
 
 DATABASE_URL = os.getenv("DATABASE_URL")

@@ -1,10 +1,11 @@
 # Contact List API
 
-This project is a REST API for managing a contact list. It is built using FastAPI and SQLAlchemy, and uses PostgreSQL as the database, and Pydantic for data validation. The API supports full CRUD operations (Create, Read, Update, Delete) for contacts, as well as search functionality and birthday reminders for the upcoming 7 days.
+This project is a REST API for managing a contact list. It is built using FastAPI and SQLAlchemy, and uses PostgreSQL as the database, and Pydantic for data validation. The API supports full CRUD operations (Create, Read, Update, Delete) for contacts, as well as user authentication, search functionality and birthday reminders for the upcoming 7 days.
 
 ## Features
 
-- Create new contacts with personal details (name, email, phone, birthday, additional info.)
+- User Registration and Authentication: Register new users and authenticate with JWT tokens. Registerd users can
+- Create new contacts with personal details (name, email, phone, birthday, additional info)
 - Retrieve a list of all contacts
 - Search contacts by first name, last name, email, phone number, or additional info
 - Update contact information
@@ -21,6 +22,8 @@ uvicorn = "^0.30.6"
 psycopg2-binary = "^2.9.9"
 sqlalchemy = "^2.0.35"
 python-dotenv = "^1.0.1"
+passlib[bcrypt] = "^1.7.4" (for password hashing)
+jose = "^3.2.0" (for JWT tokens)
 
 ## Setup
 
@@ -45,6 +48,8 @@ You need a running instance of PostgreSQL. Create a database (e.g., contact_list
 
 Bash (Copy code)
 DATABASE_URL=postgresql://your_username:your_password@localhost/contact_list
+SECRET_KEY=your_secret_key_here
+Secret Key generation script included in /utils
 
 ### 4. Activate the virtual environment
 

@@ -38,10 +38,10 @@ class UserCreate(UserBase):
 
 class UserInDB(UserBase):
     id: int
-    is_active: bool
+    is_verified: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class Token(BaseModel):

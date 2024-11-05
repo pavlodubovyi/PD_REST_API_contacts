@@ -1,13 +1,16 @@
 from typing import List
-from fastapi import FastAPI, Depends, HTTPException, status
-from app.auth import create_access_token, create_refresh_token, get_current_user, Hash, authenticate_user
+from fastapi import FastAPI, Depends, HTTPException, status, APIRouter
+from app.auth import SECRET_KEY, ALGORITHM, create_access_token, create_refresh_token, get_current_user, Hash, authenticate_user
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from app import crud, models, schemas
 from app.database import get_db
+from jose import jwt, JWTError
+from app.email import send_verification_email
 
 app = FastAPI()
 hash_handler = Hash()
+router = APIRouter()
 
 
 # Route for getting the home page
@@ -24,6 +27,9 @@ async def register(user: schemas.UserCreate, db: AsyncSession = Depends(get_db))
         raise HTTPException(status_code=409, detail="Email already registered")
     hashed_password = await hash_handler.get_password_hash(user.password)
     db_user = await crud.create_user(db, user.email, hashed_password)
+
+    # Send verification email
+    await send_verification_email(email=user.email, username=user.email.split("@")[0], host="http://localhost:8000")
     return db_user
 
 
@@ -109,3 +115,24 @@ async def get_upcoming_birthdays(
         db: AsyncSession = Depends(get_db),
         current_user: models.User = Depends(get_current_user)):
     return await crud.get_upcoming_birthdays(db=db, owner_id=current_user.id)
+
+
+@app.get("/auth/confirm_email/{token}")
+async def confirm_email(token: str, db: AsyncSession = Depends(get_db)):
+    try:
+        # decode token to get email
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload["sub"]
+        if email is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+
+        # Activate user
+        user = await crud.get_user_by_email(db, email)
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+        user.is_verified = True
+        await db.commit()
+        return {"message": "Email confirmed"}
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")

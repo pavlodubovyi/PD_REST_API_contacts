@@ -10,6 +10,7 @@ from app.models import User
 from app.database import get_db
 from starlette import status
 from sqlalchemy.future import select
+from app import crud
 
 # Setting up tokens and hashing
 SECRET_KEY = os.getenv("SECRET_KEY", "your_default_secret_key")
@@ -64,9 +65,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
         raise credentials_exception
 
     # request to get user
-    result = await db.execute(select(User).filter(User.email == email))
-    user = result.scalar_one_or_none()
-    if user is None:
+    user = await crud.get_user_by_email(db, email)
+    if user is None or not user.is_active:
         raise credentials_exception
     return user
 
@@ -77,3 +77,9 @@ async def authenticate_user(db: AsyncSession, email: str, password: str):
     if user and await Hash.verify_password(password, user.hashed_password):
         return user
     return None
+
+
+async def create_email_token(data: dict) -> str:
+    expire = datetime.utcnow() + timedelta(hours=1)
+    data.update({"exp": expire})
+    return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)

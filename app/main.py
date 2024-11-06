@@ -1,3 +1,6 @@
+import redis.asyncio as redis
+from fastapi_limiter import FastAPILimiter
+from fastapi_limiter.depends import RateLimiter
 from typing import List
 from fastapi import FastAPI, Depends, HTTPException, status, APIRouter
 from app.auth import SECRET_KEY, ALGORITHM, create_access_token, create_refresh_token, get_current_user, Hash, authenticate_user
@@ -7,10 +10,24 @@ from app import crud, models, schemas
 from app.database import get_db
 from jose import jwt, JWTError
 from app.email import send_verification_email
+from app.schemas import config
+
 
 app = FastAPI()
 hash_handler = Hash()
 router = APIRouter()
+
+
+@app.on_event("startup")
+async def startup():
+    # connection to Redis and initialization of FastAPI Limiter with Redis
+    app.redis = await redis.Redis(
+        host=config.REDIS_HOST,
+        port=config.REDIS_PORT,
+        db=0,
+        encoding="utf-8",
+        decode_responses=True)
+    await FastAPILimiter.init(app.redis)
 
 
 # Route for getting the home page
@@ -45,7 +62,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
 
 
 # Create a new contact (for current user only)
-@app.post("/contacts/", response_model=schemas.ContactInDB)
+@app.post("/contacts/", response_model=schemas.ContactInDB,
+          dependencies=[Depends(RateLimiter(times=5, seconds=60))],
+          description="No more than 5 requests per minute allowed")
 async def create_contact(
         contact: schemas.ContactCreate,
         db: AsyncSession = Depends(get_db),

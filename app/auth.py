@@ -1,9 +1,10 @@
+import json
 import os
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import jwt, JWTError
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import User
@@ -11,6 +12,7 @@ from app.database import get_db
 from starlette import status
 from sqlalchemy.future import select
 from app import crud
+from app.schemas import config
 
 # Setting up tokens and hashing
 SECRET_KEY = os.getenv("SECRET_KEY", "your_default_secret_key")
@@ -20,6 +22,8 @@ REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+CACHE_EXPIRATION = timedelta(minutes=10)  # cache is stored for 10 minutes
 
 
 # Class for password hashing
@@ -49,7 +53,7 @@ async def create_refresh_token(data: dict) -> str:
 
 
 # Function for getting current user by token
-async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+async def get_current_user(request: Request, token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid credentials",
@@ -64,10 +68,23 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
     except JWTError:
         raise credentials_exception
 
+    # Caching with Redis
+    redis_key = f"user_cache:{email}"
+    cached_user = await request.app.redis.get(redis_key)
+    if cached_user:
+        # decode user object from cache
+        return json.loads(cached_user)
+
     # request to get user
     user = await crud.get_user_by_email(db, email)
-    if user is None or not user.is_active:
+    if user is None or not user.is_active or not user.is_verified:
         raise credentials_exception
+
+    # save user in Redis with expiration time
+    await request.app.redis.set(
+        redis_key,
+        json.dumps({"id": user.id, "email": user.email, "is_verified": user.is_verified, "is_active": user.is_active}),
+        ex=CACHE_EXPIRATION)
     return user
 
 

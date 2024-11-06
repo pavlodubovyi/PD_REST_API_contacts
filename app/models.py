@@ -27,6 +27,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String, unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column(String)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=False)
     contacts = relationship("Contact", back_populates="owner")
 
     def verify_password(self, password: str) -> bool:

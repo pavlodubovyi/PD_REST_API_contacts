@@ -12,7 +12,7 @@ from app.database import get_db
 from starlette import status
 from sqlalchemy.future import select
 from app import crud
-from app.schemas import config
+
 
 # Setting up tokens and hashing
 SECRET_KEY = os.getenv("SECRET_KEY", "your_default_secret_key")
@@ -61,9 +61,10 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
     )
 
     try:
+        # Decode JWT token to get user's email
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload["sub"]
-        if email is None:
+        email = payload.get("sub")
+        if not email:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
@@ -72,15 +73,16 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
     redis_key = f"user_cache:{email}"
     cached_user = await request.app.redis.get(redis_key)
     if cached_user:
-        # decode user object from cache
-        return json.loads(cached_user)
+        # Rebuild the User model from cached data
+        user_data = json.loads(cached_user)
+        user = User(**user_data)
+    else:
+        # if user is not in cache, retrieve from database
+        user = await crud.get_user_by_email(db, email)
+        if user is None or not user.is_active or not user.is_verified:
+            raise credentials_exception
 
-    # request to get user
-    user = await crud.get_user_by_email(db, email)
-    if user is None or not user.is_active or not user.is_verified:
-        raise credentials_exception
-
-    # save user in Redis with expiration time
+    # Save user in Redis with expiration time
     await request.app.redis.set(
         redis_key,
         json.dumps({"id": user.id, "email": user.email, "is_verified": user.is_verified, "is_active": user.is_active}),

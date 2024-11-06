@@ -28,6 +28,7 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=False)
+    avatar: Mapped[str] = mapped_column(String, nullable=True)
     contacts = relationship("Contact", back_populates="owner")
 
     def verify_password(self, password: str) -> bool:

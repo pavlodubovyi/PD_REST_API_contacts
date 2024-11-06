@@ -1,21 +1,43 @@
+from typing import List
+import cloudinary
+import cloudinary.uploader
 import redis.asyncio as redis
+from fastapi import FastAPI, Depends, HTTPException, status, APIRouter, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_limiter import FastAPILimiter
 from fastapi_limiter.depends import RateLimiter
-from typing import List
-from fastapi import FastAPI, Depends, HTTPException, status, APIRouter
-from app.auth import SECRET_KEY, ALGORITHM, create_access_token, create_refresh_token, get_current_user, Hash, authenticate_user
-from fastapi.security import OAuth2PasswordRequestForm
+from jose import jwt, JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app import crud, models, schemas
+from app.auth import SECRET_KEY, ALGORITHM, create_access_token, create_refresh_token, get_current_user, Hash, \
+    authenticate_user
 from app.database import get_db
-from jose import jwt, JWTError
 from app.email import send_verification_email
-from app.schemas import config
+from app.models import User
+from app.schemas import config, UserInDB
 
+# list of allowed origins for CORS
+origins = ["http://localhost:3000"]
 
 app = FastAPI()
 hash_handler = Hash()
-router = APIRouter()
+router = APIRouter(prefix="/users", tags=["users"])
+
+# CORS settings
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"])
+
+# Cloudinary settings
+cloudinary.config(
+    cloud_name=config.CLOUDINARY_NAME,
+    api_key=config.CLOUDINARY_API_KEY,
+    api_secret=config.CLOUDINARY_API_SECRET,
+    secure=True)
 
 
 @app.on_event("startup")
@@ -136,6 +158,7 @@ async def get_upcoming_birthdays(
     return await crud.get_upcoming_birthdays(db=db, owner_id=current_user.id)
 
 
+# Confirm email
 @app.get("/auth/confirm_email/{token}")
 async def confirm_email(token: str, db: AsyncSession = Depends(get_db)):
     try:
@@ -155,3 +178,24 @@ async def confirm_email(token: str, db: AsyncSession = Depends(get_db)):
         return {"message": "Email confirmed"}
     except JWTError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+
+
+# Upload avatar
+@app.patch('/avatar', response_model=UserInDB)
+async def update_avatar(
+        file: UploadFile = File(...),
+        current_user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)):
+    # Upload avatar to Cloudinary
+    result = cloudinary.uploader.upload(
+        file.file,
+        public_id=f'PD_REST_API_contacts/{current_user.email}',
+        overwrite=True)
+    avatar_url = result.get("secure_url")
+
+    if not avatar_url:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to upload avatar")
+
+    # Update avatar in the database
+    updated_user = await crud.update_avatar(db=db, email=current_user.email, avatar_url=avatar_url)
+    return updated_user

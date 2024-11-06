@@ -41,6 +41,7 @@ class UserInDB(UserBase):
     id: int
     is_verified: bool
     is_active: bool
+    avatar: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -70,6 +71,7 @@ class AppConfig(BaseSettings):
 
     class Config:
         env_file = ".env"
+        env_file_encoding = "utf-8"
 
 
 config = AppConfig()

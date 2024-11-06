@@ -86,6 +86,7 @@ async def get_user_by_email(db: AsyncSession, email: str):
     return result.scalar_one_or_none()
 
 
+# Create new user
 async def create_user(db: AsyncSession, email: str, hashed_password: str):
     db_user = models.User(email=email, hashed_password=hashed_password)
     db.add(db_user)
@@ -93,3 +94,13 @@ async def create_user(db: AsyncSession, email: str, hashed_password: str):
     await db.refresh(db_user)
     return db_user
 
+
+# Update avatar
+async def update_avatar(db: AsyncSession, email: str, avatar_url: str) -> models.User:
+    user = await get_user_by_email(db, email)
+    if user:
+        user.avatar = avatar_url
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+    return user

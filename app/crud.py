@@ -5,7 +5,9 @@ from datetime import datetime, timedelta
 
 
 # Create new contact
-async def create_contact(db: AsyncSession, contact: schemas.ContactCreate, owner_id: int):
+async def create_contact(
+    db: AsyncSession, contact: schemas.ContactCreate, owner_id: int
+):
     db_contact = models.Contact(**contact.dict(), owner_id=owner_id)
     db.add(db_contact)
     await db.commit()
@@ -16,19 +18,25 @@ async def create_contact(db: AsyncSession, contact: schemas.ContactCreate, owner
 # Get all contacts for current user
 async def get_contacts(db: AsyncSession, owner_id: int):
     result = await db.execute(
-        select(models.Contact).filter(models.Contact.owner_id == owner_id))
+        select(models.Contact).filter(models.Contact.owner_id == owner_id)
+    )
     return result.scalars().all()
 
 
 # Get contact by id (with owner check)
 async def get_contact(db: AsyncSession, contact_id: int, owner_id: int):
     result = await db.execute(
-        select(models.Contact).filter(models.Contact.id == contact_id, models.Contact.owner_id == owner_id))
+        select(models.Contact).filter(
+            models.Contact.id == contact_id, models.Contact.owner_id == owner_id
+        )
+    )
     return result.scalar_one_or_none()
 
 
 # Update contact (with owner check)
-async def update_contact(db: AsyncSession, contact_id: int, contact: schemas.ContactUpdate, owner_id: int):
+async def update_contact(
+    db: AsyncSession, contact_id: int, contact: schemas.ContactUpdate, owner_id: int
+):
     db_contact = await get_contact(db, contact_id, owner_id)
     if db_contact:
         for key, value in contact.dict(exclude_unset=True).items():
@@ -55,9 +63,9 @@ async def search_contacts(db: AsyncSession, query: str, owner_id: int):
                 models.Contact.first_name.ilike(f"%{query}%"),
                 models.Contact.last_name.ilike(f"%{query}%"),
                 models.Contact.email.ilike(f"%{query}%"),
-                models.Contact.additional_info.ilike(f"%{query}%")
+                models.Contact.additional_info.ilike(f"%{query}%"),
             ),
-            models.Contact.owner_id == owner_id
+            models.Contact.owner_id == owner_id,
         )
     )
     return result.scalars().all()
@@ -67,7 +75,9 @@ async def search_contacts(db: AsyncSession, query: str, owner_id: int):
 async def get_upcoming_birthdays(db: AsyncSession, owner_id: int):
     today = datetime.today().date()
     upcoming = today + timedelta(days=7)
-    result = await db.execute(select(models.Contact).filter(models.Contact.owner_id == owner_id))
+    result = await db.execute(
+        select(models.Contact).filter(models.Contact.owner_id == owner_id)
+    )
     contacts = result.scalars().all()
 
     upcoming_birthdays = []

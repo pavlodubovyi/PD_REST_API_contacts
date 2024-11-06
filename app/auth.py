@@ -38,9 +38,13 @@ class Hash:
 
 
 # Function for creating access_token
-async def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+async def create_access_token(
+    data: dict, expires_delta: Optional[timedelta] = None
+) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.utcnow() + (
+        expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -53,7 +57,11 @@ async def create_refresh_token(data: dict) -> str:
 
 
 # Function for getting current user by token
-async def get_current_user(request: Request, token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+async def get_current_user(
+    request: Request,
+    token: str = Depends(oauth2_scheme),
+    db: AsyncSession = Depends(get_db),
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid credentials",
@@ -85,8 +93,16 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
     # Save user in Redis with expiration time
     await request.app.redis.set(
         redis_key,
-        json.dumps({"id": user.id, "email": user.email, "is_verified": user.is_verified, "is_active": user.is_active}),
-        ex=CACHE_EXPIRATION)
+        json.dumps(
+            {
+                "id": user.id,
+                "email": user.email,
+                "is_verified": user.is_verified,
+                "is_active": user.is_active,
+            }
+        ),
+        ex=CACHE_EXPIRATION,
+    )
     return user
 
 

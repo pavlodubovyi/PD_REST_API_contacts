@@ -27,6 +27,7 @@ itsdangerous = "^2.2.0"
 fastapi-limiter = "^0.1.6"
 redis = "^5.2.0"
 bcrypt = "^4.2.0"
+black = "^24.10.0"
 
 
 [build-system]

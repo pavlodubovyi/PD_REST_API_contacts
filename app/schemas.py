@@ -54,6 +54,10 @@ class Token(BaseModel):
 
 
 class AppConfig(BaseSettings):
+    POSTGRES_DB: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    SYNC_DATABASE_URL: str
     REDIS_HOST: str
     REDIS_PORT: int
     DATABASE_URL: str

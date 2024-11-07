@@ -22,7 +22,7 @@ from app.auth import (
     get_current_user,
     Hash,
     authenticate_user,
-    create_email_token,
+    create_email_token, oauth2_scheme
 )
 from app.database import get_db
 from app.email import send_verification_email, send_password_reset_email
@@ -105,8 +105,29 @@ async def login(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
     access_token = await create_access_token(data={"sub": user.email})
-    refresh_token = await create_refresh_token(data={"sub": user.email})
-    return schemas.Token(access_token=access_token, refresh_token=refresh_token)
+    refreshed_token = await create_refresh_token(data={"sub": user.email})
+    return schemas.Token(access_token=access_token, refresh_token=refreshed_token)
+
+
+# Route for refreshing assess token
+@app.post("/token/refresh", response_model=schemas.Token)
+async def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+
+        # Checking if user is active
+        user = await crud.get_user_by_email(db, email)
+        if user is None or not user.is_active:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or not active")
+
+        # Creating new access token
+        new_access_token = await create_access_token(data={"sub": email})
+        return {"access_token": new_access_token, "token_type": "bearer"}
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
 
 
 # Request password reset

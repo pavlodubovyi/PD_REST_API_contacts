@@ -20,6 +20,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
+# Set up password hashing context using bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -30,10 +31,12 @@ CACHE_EXPIRATION = timedelta(minutes=10)  # cache is stored for 10 minutes
 class Hash:
     @staticmethod
     async def verify_password(plain_password: str, hashed_password: str) -> bool:
+        # Verify the plain password against the hashed password
         return pwd_context.verify(plain_password, hashed_password)
 
     @staticmethod
     async def get_password_hash(password: str) -> str:
+        # Hash the provided password
         return pwd_context.hash(password)
 
 
@@ -107,6 +110,7 @@ async def get_current_user(
 
 
 async def authenticate_user(db: AsyncSession, email: str, password: str):
+    # Check if user exists in database
     result = await db.execute(select(User).filter(User.email == email))
     user = result.scalar_one_or_none()
     if user and await Hash.verify_password(password, user.hashed_password):

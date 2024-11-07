@@ -34,7 +34,7 @@ services:
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
       - CLOUDINARY_URL=${CLOUDINARY_URL}
     ports:
-      - "8000:8000"
+      - "8001:8000"
     depends_on:
       - postgres
       - redis

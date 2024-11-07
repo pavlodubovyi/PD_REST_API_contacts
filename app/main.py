@@ -278,6 +278,7 @@ async def confirm_email(token: str, db: AsyncSession = Depends(get_db)):
             )
 
         user.is_verified = True
+        user.is_active = True
         await db.commit()
         return {"message": "Email confirmed"}
     except JWTError:

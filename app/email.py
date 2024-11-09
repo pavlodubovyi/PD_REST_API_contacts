@@ -6,8 +6,10 @@ from pydantic import EmailStr
 from app.auth import create_email_token
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv()
 
+# Configure email connection settings
 conf = ConnectionConfig(
     MAIL_USERNAME=os.getenv("EMAIL_USER"),
     MAIL_PASSWORD=os.getenv("EMAIL_PASS"),
@@ -22,12 +24,23 @@ conf = ConnectionConfig(
     TEMPLATE_FOLDER=Path(__file__).parent / "templates",
 )
 
+# using Frontend URL from .env file for constructing email links
 FRONTEND_URL = os.getenv("FRONTEND_URL")
-print(FRONTEND_URL)
 
 
 async def send_verification_email(email: EmailStr, username: str, host: str):
+    """
+    Sends a verification email to the specified user with a link to confirm their email address.
+
+    :param email: The email address of the recipient.
+    :type email: EmailStr
+    :param username: The username of the recipient, used in the email template.
+    :type username: str
+    :param host: The host URL for constructing the verification link.
+    :type host: str
+    """
     try:
+        # Generate a token for email verification
         token_verification = await create_email_token({"sub": email})
         message = MessageSchema(
             subject="Confirm your email",
@@ -47,6 +60,16 @@ async def send_verification_email(email: EmailStr, username: str, host: str):
 
 
 async def send_password_reset_email(email: EmailStr, host: str, token: str):
+    """
+    Sends a password reset email to the specified user with a link to reset their password.
+
+    :param email: The email address of the recipient.
+    :type email: EmailStr
+    :param host: The host URL for constructing the password reset link.
+    :type host: str
+    :param token: The reset token to be included in the email for resetting the password.
+    :type token: str
+    """
     message = MessageSchema(
         subject="Reset your password",
         recipients=[email],

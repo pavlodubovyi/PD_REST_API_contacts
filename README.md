@@ -12,75 +12,86 @@ This project is a REST API for managing a contact list. It is built using FastAP
 - Delete contact
 - Get a list of contacts with birthdays in the next 7 days
 
-## Requirements
+## Installation
 
-To run the project locally, you will need:
+### Prerequisites
+Ensure the following are installed:
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
-python = "^3.11"
-fastapi = "^0.114.2"
-uvicorn = "^0.30.6"
-psycopg2-binary = "^2.9.9"
-sqlalchemy = "^2.0.35"
-python-dotenv = "^1.0.1"
-passlib[bcrypt] = "^1.7.4" (for password hashing)
-jose = "^3.2.0" (for JWT tokens)
+### Steps
+1. Clone the repository
+   ```bash
+   git clone https://github.com/your-username/pd-rest-api-contacts.git
+   cd pd-rest-api-contacts
 
-## Setup
+2. Set up environment variables
+Copy the example environment file (.env.example) to .env, and configure the required variables in .env:
+   ```bash
+   cp .env.example .env
 
-### 1. Clone the repository
+Set values for the following variables:
 
-bash
-git clone https://github.com/your-username/pd-rest-api-contacts.git
-cd pd-rest-api-contacts
+- `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` - PostgreSQL configuration
+- `DATABASE_URL` - Connection URL for PostgreSQL
+- `REDIS_HOST` and `REDIS_PORT` - Redis configuration
+- `SECRET_KEY` - JWT token generation
+- `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM`, `SMTP_SERVER`, `EMAIL_PORT` - Email configuration
+- `CLOUDINARY_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_URL` - Cloudinary avatar upload
 
-### 2. Install dependencies
+3. Build and start the Docker containers
 
-This project uses Poetry to manage dependencies. Install the dependencies by running:
+Use `Docker Compose` to build and run the PostgreSQL, Redis, and FastAPI application containers:
+   ```bash
+  docker-compose up --build
+   ```
 
-Bash (Copy code)
-poetry install
+This command will:
+- Build the application image using the ``Dockerfile``.
+- Set up a ``PostgreSQL`` container as the database.
+- Set up a ``Redis`` container for caching.
+- Start the ``FastAPI`` application on http://127.0.0.1:8001.
+- Make ``Sphinx`` documentation available on http://127.0.0.2
 
-This will create a virtual environment and install all necessary packages as defined in pyproject.toml.
+4. Verify the containers
 
-### 3. Set up the PostgreSQL database
+After starting, ensure the following services are running:
+- ``FastAPI`` application: Access the API at http://127.0.0.1:8001.
+- ``PostgreSQL`` database and ``Redis``: Available within the Docker network.
 
-You need a running instance of PostgreSQL. Create a database (e.g., contact_list) and configure access credentials in the .env file.
+To view logs and confirm service startup:
+   ```bash
+docker-compose logs -f
+   ```
 
-Bash (Copy code)
-DATABASE_URL=postgresql://your_username:your_password@localhost/contact_list
-SECRET_KEY=your_secret_key_here
-Secret Key generation script included in /utils
+5. Access the API documentation
 
-### 4. Activate the virtual environment
+Interactive API documentation is available at:
 
-Poetry automatically creates and manages a virtual environment for your project. You can activate it by running:
+- Swagger UI: http://127.0.0.1:8001/docs
+- ReDoc: http://127.0.0.1:8001/redoc
 
-Bash (Copy code)
-poetry shell
+### Running Commands Directly (Optional)
+For development or testing, you can run commands directly within the ``Docker`` container.
 
-Alternatively, you can directly execute commands within the virtual environment by using poetry run, for example:
-
-Bash (Copy code)
-poetry run python main.py
-
-### 5. Run the API
-
-To run the FastAPI server locally, use:
-
-Bash (Copy code)
-poetry run uvicorn main:app –reload
-
-The API will be available at http://127.0.0.1:8000. The interactive API documentation can be found at:
-Swagger UI: http://127.0.0.1:8000/docs
-ReDoc: http://127.0.0.1:8000/redoc
+Access the running ``web`` container:
+```bash
+docker-compose exec web /bin/bash
+```
+Run commands (e.g., migrations or testing):
+```
+poetry run alembic upgrade head  # Run migrations
+poetry run pytest                 # Run tests
+```
+This setup fully containerizes all dependencies, including ``PostgreSQL``, ``Redis``, and ``FastAPI``, ensuring easy deployment and testing.
 
 ## Usage
 
-Creating a contact
+1. Creating a contact
 
 You can create a new contact by sending a POST request to /contacts/ with the following JSON payload:
 
-Json (Copy code)
+```Json (Copy code)
 {
   "first_name": "John",
   "last_name": "Doe",
@@ -89,17 +100,17 @@ Json (Copy code)
   "birthday": "1990-05-01",
   "additional_info": "Friend from work"
 }
+```
+2. Get all contacts: GET /contacts/
+3. Search contacts: GET /contacts/search/?query=John
+4. Get contact by ID: GET /contacts/{contact_id}
+5. Get upcoming birthdays: GET /contacts/birthdays/
 
-Get all contacts: GET /contacts/
-Search contacts: GET /contacts/search/?query=John
-Get contact by ID: GET /contacts/{contact_id}
-Get upcoming birthdays: GET /contacts/birthdays/
-
-Updating a contact
+6. Updating a contact
 
 Send a PUT request to /contacts/{contact_id} with the updated data:
 
-Json (Copy code)
+```Json (Copy code)
 {
   "first_name": "John",
   "last_name": "Doe",
@@ -108,11 +119,12 @@ Json (Copy code)
   "birthday": "1990-05-01",
   "additional_info": "Updated info"
 }
-
-Deleting a contact
+```
+7. Deleting a contact
 Send a DELETE request to /contacts/{contact_id} to remove a contact.
 
 ## Project Structure
+```
 .
 ├── .env                # Environment variables
 ├── main.py             # FastAPI application
@@ -123,4 +135,4 @@ Send a DELETE request to /contacts/{contact_id} to remove a contact.
 ├── pyproject.toml      # Poetry configuration file
 ├── README.md           # Project documentation
 └── requirements.txt    # Auto-generated by Poetry (optional)
-
+```

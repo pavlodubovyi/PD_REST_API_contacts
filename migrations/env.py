@@ -21,7 +21,15 @@ config.set_main_option("sqlalchemy.url", os.getenv("SYNC_DATABASE_URL"))
 
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode."""
+    """
+    Run migrations in 'offline' mode.
+
+    Configures Alembic to generate SQL statements to a file without
+    requiring a live database connection.
+
+    This function retrieves the synchronous database URL and sets up
+    the context configuration with literal binds for parameterized queries.
+    """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -35,7 +43,15 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode."""
+    """
+    Run migrations in 'online' mode.
+
+    Configures Alembic to apply migrations directly to a live database
+    connection.
+
+    This function uses `engine_from_config` to create an engine and establishes
+    a connection with the specified database, allowing Alembic to perform migrations.
+    """
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",

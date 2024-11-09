@@ -42,3 +42,10 @@ services:
       - .:/app
     env_file:
       - .env
+
+  sphinx-docs:
+    image: nginx:alpine
+    ports:
+      - "8002:80"
+    volumes:
+      - ./docs/_build/html:/usr/share/nginx/html:ro

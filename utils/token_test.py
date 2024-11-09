@@ -1,12 +1,12 @@
 from jose import jwt
 
-# дані для заповнення токена
+# Data for fill in the token
 payload = {"sub": "1234567890", "name": "John Doe"}
 
-# створення токена з симетричним ключем
+# Create token with symmetrical key
 encoded = jwt.encode(payload, "secret_key", algorithm="HS256")
 print(encoded)
 
-# перевірка токена
+# Check token
 decoded = jwt.decode(encoded, "secret_key", algorithms=["HS256"])
 print(decoded)

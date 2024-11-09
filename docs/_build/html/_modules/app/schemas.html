@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>app.schemas &mdash; Contact List REST API on FastAPI  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Contact List REST API on FastAPI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#steps">Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#running-commands-directly-optional">Running Commands Directly (Optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../functionality.html">Functionality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schemas.html">Schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_models_documentation.html">API Modules Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api_models_documentation.html#main-application-module">Main Application Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_models_documentation.html#authentication-module">Authentication Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_models_documentation.html#crud-operations-module">CRUD Operations Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_models_documentation.html#database-configuration">Database Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities.html">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../utilities.html#cors-test-page">CORS Test Page</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../utilities.html#python-utilities">Python Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../templates.html">Templates</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../templates.html#email-verification-template">Email Verification Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../templates.html#password-reset-email-template">Password Reset Email Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../templates.html#password-reset-form-template">Password Reset Form Template</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Contact List REST API on FastAPI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">app.schemas</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for app.schemas</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span> <span class="nn">pydantic_settings</span> <span class="kn">import</span> <span class="n">BaseSettings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">EmailStr</span>
+
+
+<div class="viewcode-block" id="ContactBase">
+<a class="viewcode-back" href="../../schemas.html#app.schemas.ContactBase">[docs]</a>
+<span class="k">class</span> <span class="nc">ContactBase</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base schema for contact data.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        first_name (str): Contact&#39;s first name.</span>
+<span class="sd">        last_name (str): Contact&#39;s last name.</span>
+<span class="sd">        email (str): Contact&#39;s email.</span>
+<span class="sd">        phone_number (Optional[str], optional): Contact&#39;s phone number. Defaults to None.</span>
+<span class="sd">        birthday (Optional[date], optional): Contact&#39;s birthday. Defaults to None.</span>
+<span class="sd">        additional_info (Optional[str], optional): Additional information about the contact. Defaults to None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">first_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">last_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">email</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">phone_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">birthday</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">date</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">additional_info</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="ContactCreate">
+<a class="viewcode-back" href="../../schemas.html#app.schemas.ContactCreate">[docs]</a>
+<span class="k">class</span> <span class="nc">ContactCreate</span><span class="p">(</span><span class="n">ContactBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Schema for creating a new contact.</span>
+<span class="sd">    Inherits all attributes from ContactBase.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="ContactUpdate">
+<a class="viewcode-back" href="../../schemas.html#app.schemas.ContactUpdate">[docs]</a>
+<span class="k">class</span> <span class="nc">ContactUpdate</span><span class="p">(</span><span class="n">ContactBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Schema for updating an existing contact.</span>
+<span class="sd">    Inherits all attributes from ContactBase.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="ContactInDB">
+<a class="viewcode-back" href="../../schemas.html#app.schemas.ContactInDB">[docs]</a>
+<span class="k">class</span> <span class="nc">ContactInDB</span><span class="p">(</span><span class="n">ContactBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Schema for a contact stored in the database.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        id (int): The unique identifier of the contact.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+
+<div class="viewcode-block" id="ContactInDB.Config">
+<a class="viewcode-back" href="../../schemas.html#app.schemas.ContactInDB.Config">[docs]</a>
+    <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Configuration for Pydantic model behavior.</span>
+
+<span class="sd">        Attributes:</span>
+<span class="sd">            from_attributes (bool): Allows the model to populate fields directly</span>
+<span class="sd">            from ORM model attributes, facilitating the use of ORM objects with</span>
+<span class="sd">            Pydantic models.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">from_attributes</span> <span class="o">=</span> <span class="kc">True</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UserBase">
+<a class="viewcode-back" href="../../schemas.html#app.schemas.UserBase">[docs]</a>
+<span class="k">class</span> <span class="nc">UserBase</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base schema for user data.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        email (EmailStr): User&#39;s email address.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">email</span><span class="p">:</span> <span class="n">EmailStr</span></div>
+
+
+
+<div class="viewcode-block" id="UserCreate">
+<a class="viewcode-back" href="../../schemas.html#app.schemas.UserCreate">[docs]</a>
+<span class="k">class</span> <span class="nc">UserCreate</span><span class="p">(</span><span class="n">UserBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Schema for creating a new user.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        password (str): User&#39;s password.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">password</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+
+<div class="viewcode-block" id="UserInDB">
+<a class="viewcode-back" href="../../schemas.html#app.schemas.UserInDB">[docs]</a>
+<span class="k">class</span> <span class="nc">UserInDB</span><span class="p">(</span><span class="n">UserBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Schema for a user stored in the database.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        id (int): The unique identifier of the user.</span>
+<span class="sd">        is_verified (bool): Whether the user&#39;s email is verified.</span>
+<span class="sd">        is_active (bool): Whether the user is active.</span>
+<span class="sd">        avatar (Optional[str], optional): The URL of the user&#39;s avatar. Defaults to None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">is_verified</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">is_active</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">avatar</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="UserInDB.Config">
+<a class="viewcode-back" href="../../schemas.html#app.schemas.UserInDB.Config">[docs]</a>
+    <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+        <span class="n">from_attributes</span> <span class="o">=</span> <span class="kc">True</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Token">
+<a class="viewcode-back" href="../../schemas.html#app.schemas.Token">[docs]</a>
+<span class="k">class</span> <span class="nc">Token</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Schema for token data.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        access_token (str): The access token for user authentication.</span>
+<span class="sd">        refresh_token (str): The refresh token for obtaining new access tokens.</span>
+<span class="sd">        token_type (str): The type of token, default is &quot;bearer&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">access_token</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">refresh_token</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">token_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bearer&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="AppConfig">
+<a class="viewcode-back" href="../../schemas.html#app.schemas.AppConfig">[docs]</a>
+<span class="k">class</span> <span class="nc">AppConfig</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration settings for the application, loaded from environment variables.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        POSTGRES_DB (str): The PostgreSQL database name.</span>
+<span class="sd">        POSTGRES_USER (str): The PostgreSQL username.</span>
+<span class="sd">        POSTGRES_PASSWORD (str): The PostgreSQL user password.</span>
+<span class="sd">        SYNC_DATABASE_URL (str): The synchronous database URL.</span>
+<span class="sd">        REDIS_HOST (str): The Redis host.</span>
+<span class="sd">        REDIS_PORT (int): The Redis port.</span>
+<span class="sd">        DATABASE_URL (str): The asynchronous database URL.</span>
+<span class="sd">        SECRET_KEY (str): The secret key for JWT encoding.</span>
+<span class="sd">        EMAIL_USER (str): The email account username.</span>
+<span class="sd">        EMAIL_PASS (str): The email account password.</span>
+<span class="sd">        EMAIL_FROM (str): The sender&#39;s email address.</span>
+<span class="sd">        SMTP_SERVER (str): The SMTP server for email.</span>
+<span class="sd">        EMAIL_PORT (int): The port for the SMTP server.</span>
+<span class="sd">        FRONTEND_URL (str): The frontend URL for email links.</span>
+<span class="sd">        CLOUDINARY_NAME (str): The Cloudinary account name.</span>
+<span class="sd">        CLOUDINARY_API_KEY (str): The Cloudinary API key.</span>
+<span class="sd">        CLOUDINARY_API_SECRET (str): The Cloudinary API secret.</span>
+<span class="sd">        CLOUDINARY_URL (str): The Cloudinary URL for image uploads.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">POSTGRES_DB</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">POSTGRES_USER</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">POSTGRES_PASSWORD</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">SYNC_DATABASE_URL</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">REDIS_HOST</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">REDIS_PORT</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">DATABASE_URL</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">SECRET_KEY</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">EMAIL_USER</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">EMAIL_PASS</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">EMAIL_FROM</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">SMTP_SERVER</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">EMAIL_PORT</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">FRONTEND_URL</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">CLOUDINARY_NAME</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">CLOUDINARY_API_KEY</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">CLOUDINARY_API_SECRET</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">CLOUDINARY_URL</span><span class="p">:</span> <span class="nb">str</span>
+
+<div class="viewcode-block" id="AppConfig.Config">
+<a class="viewcode-back" href="../../schemas.html#app.schemas.AppConfig.Config">[docs]</a>
+    <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Configuration settings for environment variable handling.</span>
+
+<span class="sd">        Attributes:</span>
+<span class="sd">            env_file (str): Specifies the file from which environment variables should be loaded.</span>
+<span class="sd">            env_file_encoding (str): The encoding format for the environment file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">env_file</span> <span class="o">=</span> <span class="s2">&quot;.env&quot;</span>
+        <span class="n">env_file_encoding</span> <span class="o">=</span> <span class="s2">&quot;utf-8&quot;</span></div>
+</div>
+
+
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">AppConfig</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Pavlo Dubovyi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

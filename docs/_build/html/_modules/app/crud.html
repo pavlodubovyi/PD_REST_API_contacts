@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>app.crud &mdash; Contact List REST API on FastAPI  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Contact List REST API on FastAPI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#steps">Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#running-commands-directly-optional">Running Commands Directly (Optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../functionality.html">Functionality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schemas.html">Schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_models_documentation.html">API Modules Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api_models_documentation.html#main-application-module">Main Application Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_models_documentation.html#authentication-module">Authentication Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_models_documentation.html#crud-operations-module">CRUD Operations Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_models_documentation.html#database-configuration">Database Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities.html">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../utilities.html#cors-test-page">CORS Test Page</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../utilities.html#python-utilities">Python Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../templates.html">Templates</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../templates.html#email-verification-template">Email Verification Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../templates.html#password-reset-email-template">Password Reset Email Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../templates.html#password-reset-form-template">Password Reset Form Template</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Contact List REST API on FastAPI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">app.crud</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for app.crud</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sqlalchemy.ext.asyncio</span> <span class="kn">import</span> <span class="n">AsyncSession</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">or_</span><span class="p">,</span> <span class="n">select</span>
+<span class="kn">from</span> <span class="nn">app</span> <span class="kn">import</span> <span class="n">models</span><span class="p">,</span> <span class="n">schemas</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+
+
+<div class="viewcode-block" id="create_contact">
+<a class="viewcode-back" href="../../api_models_documentation.html#app.crud.create_contact">[docs]</a>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">create_contact</span><span class="p">(</span>
+    <span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">,</span> <span class="n">contact</span><span class="p">:</span> <span class="n">schemas</span><span class="o">.</span><span class="n">ContactCreate</span><span class="p">,</span> <span class="n">owner_id</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a new contact for a specific user.</span>
+
+<span class="sd">    :param db: The database session.</span>
+<span class="sd">    :type db: AsyncSession</span>
+<span class="sd">    :param contact: The data for the new contact.</span>
+<span class="sd">    :type contact: schemas.ContactCreate</span>
+<span class="sd">    :param owner_id: The ID of the user who owns the contact.</span>
+<span class="sd">    :type owner_id: int</span>
+<span class="sd">    :return: The newly created contact.</span>
+<span class="sd">    :rtype: models.Contact</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">db_contact</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="p">(</span><span class="o">**</span><span class="n">contact</span><span class="o">.</span><span class="n">dict</span><span class="p">(),</span> <span class="n">owner_id</span><span class="o">=</span><span class="n">owner_id</span><span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">db_contact</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">db_contact</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">db_contact</span></div>
+
+
+
+<div class="viewcode-block" id="get_contacts">
+<a class="viewcode-back" href="../../api_models_documentation.html#app.crud.get_contacts">[docs]</a>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">get_contacts</span><span class="p">(</span><span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">,</span> <span class="n">owner_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves all contacts of a specific user from database.</span>
+
+<span class="sd">    :param db: The database session.</span>
+<span class="sd">    :type db: AsyncSession</span>
+<span class="sd">    :param owner_id: The ID of the user who owns the contacts.</span>
+<span class="sd">    :type owner_id: int</span>
+<span class="sd">    :return: A list of contacts belonging to the user.</span>
+<span class="sd">    :rtype: list[models.Contact]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="o">.</span><span class="n">owner_id</span> <span class="o">==</span> <span class="n">owner_id</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">scalars</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="get_contact">
+<a class="viewcode-back" href="../../api_models_documentation.html#app.crud.get_contact">[docs]</a>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">get_contact</span><span class="p">(</span><span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">,</span> <span class="n">contact_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">owner_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves a specific contact by its ID, ensuring it belongs to the user.</span>
+
+<span class="sd">    :param db: The database session.</span>
+<span class="sd">    :type db: AsyncSession</span>
+<span class="sd">    :param contact_id: The ID of the contact to retrieve.</span>
+<span class="sd">    :type contact_id: int</span>
+<span class="sd">    :param owner_id: The ID of the user who owns the contact.</span>
+<span class="sd">    :type owner_id: int</span>
+<span class="sd">    :return: The contact if found, otherwise None.</span>
+<span class="sd">    :rtype: models.Contact | None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">contact_id</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="o">.</span><span class="n">owner_id</span> <span class="o">==</span> <span class="n">owner_id</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">scalar_one_or_none</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="update_contact">
+<a class="viewcode-back" href="../../api_models_documentation.html#app.crud.update_contact">[docs]</a>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">update_contact</span><span class="p">(</span>
+    <span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">,</span> <span class="n">contact_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">contact</span><span class="p">:</span> <span class="n">schemas</span><span class="o">.</span><span class="n">ContactUpdate</span><span class="p">,</span> <span class="n">owner_id</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Updates a specific contact&#39;s information, ensuring it belongs to the user.</span>
+
+<span class="sd">    :param db: The database session.</span>
+<span class="sd">    :type db: AsyncSession</span>
+<span class="sd">    :param contact_id: The ID of the contact to update.</span>
+<span class="sd">    :type contact_id: int</span>
+<span class="sd">    :param contact: The updated data for the contact.</span>
+<span class="sd">    :type contact: schemas.ContactUpdate</span>
+<span class="sd">    :param owner_id: The ID of the user who owns the contact.</span>
+<span class="sd">    :type owner_id: int</span>
+<span class="sd">    :return: The updated contact if found, otherwise None.</span>
+<span class="sd">    :rtype: models.Contact | None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">db_contact</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_contact</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">contact_id</span><span class="p">,</span> <span class="n">owner_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">db_contact</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">contact</span><span class="o">.</span><span class="n">dict</span><span class="p">(</span><span class="n">exclude_unset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">db_contact</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">db_contact</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">db_contact</span></div>
+
+
+
+<div class="viewcode-block" id="delete_contact">
+<a class="viewcode-back" href="../../api_models_documentation.html#app.crud.delete_contact">[docs]</a>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">delete_contact</span><span class="p">(</span><span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">,</span> <span class="n">contact_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">owner_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deletes a specific contact, ensuring it belongs to the user.</span>
+
+<span class="sd">    :param db: The database session.</span>
+<span class="sd">    :type db: AsyncSession</span>
+<span class="sd">    :param contact_id: The ID of the contact to delete.</span>
+<span class="sd">    :type contact_id: int</span>
+<span class="sd">    :param owner_id: The ID of the user who owns the contact.</span>
+<span class="sd">    :type owner_id: int</span>
+<span class="sd">    :return: The deleted contact if found, otherwise None.</span>
+<span class="sd">    :rtype: models.Contact | None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">db_contact</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_contact</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">contact_id</span><span class="p">,</span> <span class="n">owner_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">db_contact</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">db_contact</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">db_contact</span></div>
+
+
+
+<div class="viewcode-block" id="search_contacts">
+<a class="viewcode-back" href="../../api_models_documentation.html#app.crud.search_contacts">[docs]</a>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">search_contacts</span><span class="p">(</span><span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">owner_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Searches database for one or more contacts by first name, last name, email, or additional info.</span>
+
+<span class="sd">    :param db: The database session.</span>
+<span class="sd">    :type db: AsyncSession</span>
+<span class="sd">    :param query: The search query string.</span>
+<span class="sd">    :type query: str</span>
+<span class="sd">    :param owner_id: The ID of the user who owns the contacts.</span>
+<span class="sd">    :type owner_id: int</span>
+<span class="sd">    :return: A list of contacts matching the search criteria.</span>
+<span class="sd">    :rtype: list[models.Contact]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">or_</span><span class="p">(</span>
+                <span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="o">.</span><span class="n">first_name</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;%</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">),</span>
+                <span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="o">.</span><span class="n">last_name</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;%</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">),</span>
+                <span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="o">.</span><span class="n">email</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;%</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">),</span>
+                <span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="o">.</span><span class="n">additional_info</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;%</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="o">.</span><span class="n">owner_id</span> <span class="o">==</span> <span class="n">owner_id</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">scalars</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="get_upcoming_birthdays">
+<a class="viewcode-back" href="../../api_models_documentation.html#app.crud.get_upcoming_birthdays">[docs]</a>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">get_upcoming_birthdays</span><span class="p">(</span><span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">,</span> <span class="n">owner_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves a list of contacts with birthdays in the next 7 days for a specific user.</span>
+
+<span class="sd">    :param db: The database session.</span>
+<span class="sd">    :type db: AsyncSession</span>
+<span class="sd">    :param owner_id: The ID of the user who owns the contacts.</span>
+<span class="sd">    :type owner_id: int</span>
+<span class="sd">    :return: A list of contacts with upcoming birthdays.</span>
+<span class="sd">    :rtype: list[models.Contact]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="n">upcoming</span> <span class="o">=</span> <span class="n">today</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+        <span class="n">select</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="o">.</span><span class="n">owner_id</span> <span class="o">==</span> <span class="n">owner_id</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">contacts</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">scalars</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="n">upcoming_birthdays</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">contact</span> <span class="ow">in</span> <span class="n">contacts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">contact</span><span class="o">.</span><span class="n">birthday</span><span class="p">:</span>
+            <span class="n">birthday_this_year</span> <span class="o">=</span> <span class="n">contact</span><span class="o">.</span><span class="n">birthday</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">today</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">today</span> <span class="o">&lt;=</span> <span class="n">birthday_this_year</span> <span class="o">&lt;=</span> <span class="n">upcoming</span><span class="p">:</span>
+                <span class="n">upcoming_birthdays</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">contact</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">upcoming_birthdays</span></div>
+
+
+
+<span class="c1"># User operations</span>
+<div class="viewcode-block" id="get_user_by_email">
+<a class="viewcode-back" href="../../api_models_documentation.html#app.crud.get_user_by_email">[docs]</a>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">get_user_by_email</span><span class="p">(</span><span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">,</span> <span class="n">email</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves a user from database by his/her email address.</span>
+
+<span class="sd">    :param db: The database session.</span>
+<span class="sd">    :type db: AsyncSession</span>
+<span class="sd">    :param email: The user&#39;s email address.</span>
+<span class="sd">    :type email: str</span>
+<span class="sd">    :return: The user if found, otherwise None.</span>
+<span class="sd">    :rtype: models.User | None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">User</span><span class="o">.</span><span class="n">email</span> <span class="o">==</span> <span class="n">email</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">scalar_one_or_none</span><span class="p">()</span></div>
+
+
+
+<span class="c1"># Create new user</span>
+<div class="viewcode-block" id="create_user">
+<a class="viewcode-back" href="../../api_models_documentation.html#app.crud.create_user">[docs]</a>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">create_user</span><span class="p">(</span><span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">,</span> <span class="n">email</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hashed_password</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a new user with the specified email and hashed password.</span>
+
+<span class="sd">    :param db: The database session.</span>
+<span class="sd">    :type db: AsyncSession</span>
+<span class="sd">    :param email: The user&#39;s email address.</span>
+<span class="sd">    :type email: str</span>
+<span class="sd">    :param hashed_password: The hashed password for the user.</span>
+<span class="sd">    :type hashed_password: str</span>
+<span class="sd">    :return: The newly created user.</span>
+<span class="sd">    :rtype: models.User</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">db_user</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">User</span><span class="p">(</span><span class="n">email</span><span class="o">=</span><span class="n">email</span><span class="p">,</span> <span class="n">hashed_password</span><span class="o">=</span><span class="n">hashed_password</span><span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">db_user</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">db_user</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">db_user</span></div>
+
+
+
+<span class="c1"># Update avatar</span>
+<div class="viewcode-block" id="update_avatar">
+<a class="viewcode-back" href="../../api_models_documentation.html#app.crud.update_avatar">[docs]</a>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">update_avatar</span><span class="p">(</span><span class="n">db</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">,</span> <span class="n">email</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">avatar_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">models</span><span class="o">.</span><span class="n">User</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Updates the user&#39;s avatar URL.</span>
+
+<span class="sd">    :param db: The database session.</span>
+<span class="sd">    :type db: AsyncSession</span>
+<span class="sd">    :param email: The user&#39;s email address.</span>
+<span class="sd">    :type email: str</span>
+<span class="sd">    :param avatar_url: The new avatar URL for the user.</span>
+<span class="sd">    :type avatar_url: str</span>
+<span class="sd">    :return: The updated user with the new avatar URL.</span>
+<span class="sd">    :rtype: models.User</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_user_by_email</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">email</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">avatar</span> <span class="o">=</span> <span class="n">avatar_url</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">user</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Pavlo Dubovyi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

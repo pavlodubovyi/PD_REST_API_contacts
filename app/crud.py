@@ -19,7 +19,7 @@ async def create_contact(
     :return: The newly created contact.
     :rtype: models.Contact
     """
-    db_contact = models.Contact(**contact.dict(), owner_id=owner_id)
+    db_contact = models.Contact(**contact.model_dump(), owner_id=owner_id)
     db.add(db_contact)
     await db.commit()
     await db.refresh(db_contact)
@@ -83,7 +83,7 @@ async def update_contact(
     """
     db_contact = await get_contact(db, contact_id, owner_id)
     if db_contact:
-        for key, value in contact.dict(exclude_unset=True).items():
+        for key, value in contact.model_dump(exclude_unset=True).items():
             setattr(db_contact, key, value)
         await db.commit()
         await db.refresh(db_contact)

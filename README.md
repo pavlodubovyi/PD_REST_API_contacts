@@ -87,42 +87,18 @@ This setup fully containerizes all dependencies, including ``PostgreSQL``, ``Red
 
 ## Usage
 
-1. Creating a contact
-
-You can create a new contact by sending a POST request to /contacts/ with the following JSON payload:
-
-```Json (Copy code)
-{
-  "first_name": "John",
-  "last_name": "Doe",
-  "email": "john.doe@example.com",
-  "phone_number": "+123456789",
-  "birthday": "1990-05-01",
-  "additional_info": "Friend from work"
-}
-```
-2. Get all contacts: GET /contacts/
-3. Search contacts: GET /contacts/search/?query=John
-4. Get contact by ID: GET /contacts/{contact_id}
-5. Get upcoming birthdays: GET /contacts/birthdays/
-
-6. Updating a contact
-
-Send a PUT request to /contacts/{contact_id} with the updated data:
-
-```Json (Copy code)
-{
-  "first_name": "John",
-  "last_name": "Doe",
-  "email": "john.newemail@example.com",
-  "phone_number": "+987654321",
-  "birthday": "1990-05-01",
-  "additional_info": "Updated info"
-}
-```
-7. Deleting a contact
-Send a DELETE request to /contacts/{contact_id} to remove a contact.
-
+- `POST` /register - Register a new user
+- `POST` /login - Login to receive access and refresh tokens
+- `POST` /contacts/ - Create a new contact (rate limited)
+- `GET` /contacts/ - Retrieve all contacts
+- `GET` /contacts/{contact_id} - Retrieve a contact by ID
+- `PUT` /contacts/{contact_id} - Update a contact by ID
+- `DELETE` /contacts/{contact_id} - Delete a contact by ID
+- `GET` /contacts/search/ - Search contacts by query
+- `GET` /contacts/birthdays/ - Retrieve contacts with birthdays in the next 7 days
+- `POST` /request-password-reset/ - Request a password reset link
+- `POST` /confirm-password-reset/{token} - Reset password with the token
+- `PATCH` /avatar - Upload or update avatar
 ## Project Structure
 ```
 .

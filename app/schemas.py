@@ -12,14 +12,14 @@ class ContactBase(BaseModel):
     Attributes:
         first_name (str): Contact's first name.
         last_name (str): Contact's last name.
-        email (str): Contact's email.
+        email (Optional[str], optional): Contact's email.
         phone_number (Optional[str], optional): Contact's phone number. Defaults to None.
         birthday (Optional[date], optional): Contact's birthday. Defaults to None.
         additional_info (Optional[str], optional): Additional information about the contact. Defaults to None.
     """
     first_name: str
     last_name: str
-    email: str
+    email: Optional[str] = None
     phone_number: Optional[str] = None
     birthday: Optional[date] = None
     additional_info: Optional[str] = None

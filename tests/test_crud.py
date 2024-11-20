@@ -16,6 +16,15 @@ from app.crud import (
 from datetime import date
 
 
+# Factory for creating async session mock
+def create_mock_session():
+    session = AsyncMock()
+    session.add = MagicMock()
+    session.commit = AsyncMock()
+    session.refresh = AsyncMock()
+    return session
+
+
 class TestCRUD(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         # Mocking the AsyncSession
@@ -64,7 +73,6 @@ class TestCRUD(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.owner_id, expected_contact.owner_id)
 
     async def test_get_contacts(self):
-        # creating a mock list of contacts
         mock_contacts = [
             models.Contact(
                 id=1,
@@ -311,11 +319,7 @@ class TestCRUD(unittest.IsolatedAsyncioTestCase):
         )
 
         # Mocking the database interaction
-        mock_session = AsyncMock()
-        mock_async_session.return_value = mock_session
-        mock_session.add = MagicMock()
-        mock_session.commit = AsyncMock()
-        mock_session.refresh = AsyncMock()
+        mock_session = create_mock_session()
 
         # Calling the tested function
         result = await create_user(mock_session, mock_user.email, mock_user.hashed_password)
@@ -345,12 +349,7 @@ class TestCRUD(unittest.IsolatedAsyncioTestCase):
         # Mocking the get_user_by_email function
         mock_get_user_by_email.return_value = mock_user
 
-        # Mocking the database interaction
-        mock_session = AsyncMock()
-        mock_async_session.return_value = mock_session
-        mock_session.add = MagicMock()
-        mock_session.commit = AsyncMock()
-        # mock_session.refresh = AsyncMock()
+        mock_session = create_mock_session()
 
         # Calling the tested function
         result = await update_avatar(mock_session, email="john.doe@example.com", avatar_url=new_avatar_url)

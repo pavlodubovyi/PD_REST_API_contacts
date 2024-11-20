@@ -164,7 +164,7 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> Opti
     :rtype: Optional[User]
     """
     result = await db.execute(select(User).filter(User.email == email))
-    user = result.scalar_one_or_none()
+    user = await result.scalar_one_or_none()
     if user and await Hash.verify_password(password, user.hashed_password):
         return user
     return None

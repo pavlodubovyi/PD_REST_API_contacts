@@ -55,6 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../api_models_documentation.html#authentication-module">Authentication Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api_models_documentation.html#crud-operations-module">CRUD Operations Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api_models_documentation.html#database-configuration">Database Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api_models_documentation.html#email-module">Email Module</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../utilities.html">Utilities</a><ul>
@@ -118,7 +119,7 @@
 <span class="sd">    :return: The newly created contact.</span>
 <span class="sd">    :rtype: models.Contact</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">db_contact</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="p">(</span><span class="o">**</span><span class="n">contact</span><span class="o">.</span><span class="n">dict</span><span class="p">(),</span> <span class="n">owner_id</span><span class="o">=</span><span class="n">owner_id</span><span class="p">)</span>
+    <span class="n">db_contact</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Contact</span><span class="p">(</span><span class="o">**</span><span class="n">contact</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(),</span> <span class="n">owner_id</span><span class="o">=</span><span class="n">owner_id</span><span class="p">)</span>
     <span class="n">db</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">db_contact</span><span class="p">)</span>
     <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
     <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">db_contact</span><span class="p">)</span>
@@ -191,7 +192,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">db_contact</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_contact</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">contact_id</span><span class="p">,</span> <span class="n">owner_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">db_contact</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">contact</span><span class="o">.</span><span class="n">dict</span><span class="p">(</span><span class="n">exclude_unset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">contact</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">exclude_unset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">db_contact</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">db_contact</span><span class="p">)</span>

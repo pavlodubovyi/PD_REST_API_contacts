@@ -28,7 +28,7 @@ conf = ConnectionConfig(
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 
-async def send_verification_email(email: EmailStr, username: str, host: str):
+async def send_verification_email(email: EmailStr, username: str):
     """
     Sends a verification email to the specified user with a link to confirm their email address.
 
@@ -36,8 +36,6 @@ async def send_verification_email(email: EmailStr, username: str, host: str):
     :type email: EmailStr
     :param username: The username of the recipient, used in the email template.
     :type username: str
-    :param host: The host URL for constructing the verification link.
-    :type host: str
     """
     try:
         # Generate a token for email verification

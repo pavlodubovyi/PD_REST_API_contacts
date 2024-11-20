@@ -58,6 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#authentication-module">Authentication Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#crud-operations-module">CRUD Operations Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#database-configuration">Database Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#email-module">Email Module</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a><ul>
@@ -813,6 +814,39 @@ The session is automatically closed after the request is processed.</p>
 </dd></dl>
 
 <p>This module (<cite>app.database</cite>) includes the database setup and configuration, as well as functions for connecting to the PostgreSQL database. It initializes the database engine and session makers.</p>
+</section>
+<section id="email-module">
+<h2>Email Module<a class="headerlink" href="#email-module" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.email.</span></span><span class="sig-name descname"><span class="pre">send_password_reset_email</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/email.html#send_password_reset_email"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Sends a password reset email to the specified user with a link to reset their password.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>email</strong> (<em>EmailStr</em>) – The email address of the recipient.</p></li>
+<li><p><strong>host</strong> (<em>str</em>) – The host URL for constructing the password reset link.</p></li>
+<li><p><strong>token</strong> (<em>str</em>) – The reset token to be included in the email for resetting the password.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.email.</span></span><span class="sig-name descname"><span class="pre">send_verification_email</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/email.html#send_verification_email"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Sends a verification email to the specified user with a link to confirm their email address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>email</strong> (<em>EmailStr</em>) – The email address of the recipient.</p></li>
+<li><p><strong>username</strong> (<em>str</em>) – The username of the recipient, used in the email template.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>The email module (<cite>app.email</cite>) handles sending emails to users. It includes functions for sending verification emails and password reset emails.</p>
 </section>
 </section>
 

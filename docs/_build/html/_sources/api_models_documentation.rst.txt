@@ -45,3 +45,13 @@ Database Configuration
    :no-index:
 
 This module (`app.database`) includes the database setup and configuration, as well as functions for connecting to the PostgreSQL database. It initializes the database engine and session makers.
+
+Email Module
+------------
+.. automodule:: app.email
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :no-index:
+
+The email module (`app.email`) handles sending emails to users. It includes functions for sending verification emails and password reset emails.

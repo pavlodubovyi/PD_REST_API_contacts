@@ -22,7 +22,8 @@ from app.auth import (
     get_current_user,
     Hash,
     authenticate_user,
-    create_email_token, oauth2_scheme
+    create_email_token,
+    oauth2_scheme
 )
 from app.database import get_db
 from app.email import send_verification_email, send_password_reset_email
@@ -234,7 +235,7 @@ async def confirm_password_reset(
 
         hashed_password = await hash_handler.get_password_hash(new_password)
         user.hashed_password = hashed_password
-        db.add(user)
+        await db.add(user)
         await db.commit()
         return {"message": "Password has been reset."}
     except JWTError:
@@ -369,7 +370,7 @@ async def delete_contact(
     :return: The deleted contact if successful, otherwise raises HTTP 404.
     :rtype: schemas.ContactInDB
     """
-    contact = await crud.get_contact(db, contact_id, owner_id=current_user.id)
+    contact = await crud.get_contact(db=db, contact_id=contact_id, owner_id=current_user.id)
     if contact is None or contact.owner_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
